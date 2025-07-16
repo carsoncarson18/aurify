@@ -1,7 +1,7 @@
 import React from "react";
 
 const CLIENT_ID = "6ddfacb3430f483fa2bb108913bffb7e";
-const REDIRECT_URI = "https://aurify.vercel.app/callback"; // Redirect URL after login
+const REDIRECT_URI = "https://aurify-sound.vercel.app/callback"; // Redirect URL after login
 const SCOPES = ["user-read-email", "user-read-private", "user-top-read"]; // Permissions requested
 
 // generate random string for OAuth PKCE code verifier
