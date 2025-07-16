@@ -22,6 +22,7 @@ export default function Dashboard() {
     const [topTracks, setTopTracks] = useState<Track[]>([]);
     const [error, setError] = useState<string | null>(null);
     const [isAuraRevealing, setIsAuraRevealing] = useState(false);
+    const [isAuraLoading, setIsAuraLoading] = useState(false);
 
     useEffect(() => {
         async function fetchUserProfile() {
@@ -57,7 +58,7 @@ export default function Dashboard() {
         const jwtToken = localStorage.getItem("jwt");
         if (!jwtToken) {
             setError("Session expired. Redirecting to login...");
-            setTimeout(() => window.location.href = "/", 3000);
+            setTimeout(() => (window.location.href = "/"), 3000);
             return;
         }
 
@@ -86,13 +87,14 @@ export default function Dashboard() {
             <div className="px-4 pt-8 pb-16 text-white sm:px-8 sm:pt-10 md:px-16 md:pt-12 lg:pt-6">
                 <UserProfileCard profile={profile} />
 
-                {/* hide TopTracksList while aura is revealing */}
-                {!isAuraRevealing && <TopTracksList tracks={topTracks} />}
+                {/* hide TopTracksList while aura is revealing or loading */}
+                {!(isAuraRevealing || isAuraLoading) && <TopTracksList tracks={topTracks} />}
 
-                {/* pass setter so AuraReveal can notify parent */}
+                {/* pass setters so AuraReveal can notify parent about loading and revealing */}
                 <AuraReveal
                     trackIds={topTracks.map(track => track.id)}
                     setIsAuraRevealing={setIsAuraRevealing}
+                    setIsAuraLoading={setIsAuraLoading}
                 />
             </div>
         </div>

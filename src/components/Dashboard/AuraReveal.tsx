@@ -4,9 +4,10 @@ import { fetchWithJwt } from "../../utils/api";
 interface AuraRevealProps {
     trackIds: string[];
     setIsAuraRevealing: React.Dispatch<React.SetStateAction<boolean>>;
+    setIsAuraLoading: React.Dispatch<React.SetStateAction<boolean>>; // new prop
 }
 
-export default function AuraReveal({ trackIds, setIsAuraRevealing }: AuraRevealProps) {
+export default function AuraReveal({ trackIds, setIsAuraRevealing, setIsAuraLoading }: AuraRevealProps) {
     const [aura, setAura] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -21,7 +22,8 @@ export default function AuraReveal({ trackIds, setIsAuraRevealing }: AuraRevealP
         setLoading(true);
         setError(null);
         setAura(null);
-        setIsAuraRevealing(true);  // notify parent we're revealing aura
+        setIsAuraLoading(true);    // notify parent: loading started
+        setIsAuraRevealing(true);  // notify parent: revealing started
 
         try {
             const data = await fetchWithJwt("https://aurify-backend.onrender.com/api/analyze-aura", {
@@ -41,12 +43,13 @@ export default function AuraReveal({ trackIds, setIsAuraRevealing }: AuraRevealP
             setError(err.message);
         } finally {
             setLoading(false);
+            setIsAuraLoading(false);  // notify parent: loading finished
         }
     };
 
     return (
         <div className="text-center mt-10">
-            {!aura && (
+            {!aura && !loading && (
                 <button
                     onClick={handleClick}
                     className="px-12 py-4 text-xl font-semibold text-white rounded-full shadow-lg 
