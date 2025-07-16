@@ -19,7 +19,7 @@ export default function Callback() {
             }
 
             try {
-                const tokenResponse = await fetch("https:aurify-backend.onrender.com/api/token", {
+                const tokenResponse = await fetch("https://aurify-backend.onrender.com/api/token", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
@@ -27,19 +27,34 @@ export default function Callback() {
                     body: JSON.stringify({ code, verifier }),
                 });
 
+                const rawText = await tokenResponse.text(); // Get raw response
+
                 if (!tokenResponse.ok) {
-                    const errorData = await tokenResponse.json();
-                    throw new Error(errorData.detail || errorData.error || "Failed to get access token");
+                    let errorDetail = rawText;
+                    try {
+                        const errorData = JSON.parse(rawText);
+                        errorDetail = errorData.detail || errorData.error || errorDetail;
+                    } catch {
+                        // Response wasn't valid JSON
+                    }
+                    throw new Error(`Token fetch failed: ${tokenResponse.status} ${errorDetail}`);
                 }
 
-                const { jwt } = await tokenResponse.json();
+                // Try to parse the raw response as JSON
+                let jwt;
+                try {
+                    const data = JSON.parse(rawText);
+                    jwt = data.jwt;
+                } catch {
+                    throw new Error("Invalid JSON in token response.");
+                }
 
                 localStorage.setItem("jwt", jwt);
 
-                // clear query params
+                // Clear query params
                 window.history.replaceState({}, document.title, "/callback");
 
-                // navigate to dashboard
+                // Navigate to dashboard
                 navigate("/dashboard");
             } catch (err: any) {
                 setError(err.message);
